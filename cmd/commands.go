@@ -8,57 +8,62 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var add = &cobra.Command{
-	Use:   "Add",
-	Short: "Add JSON entry",
+var addCmd = &cobra.Command{
+	Use:   "add",
+	Short: "Add a new task to the JSON file",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Entry added", tasks.AddJSON(args[0], args[1]))
+		err := tasks.AddJSON(args[0], args[1])
+		if err != nil {
+			fmt.Printf("Error adding task: %v\n", err)
+			return
+		}
+		fmt.Println("Task added successfully.")
 	},
 }
 
-var update = &cobra.Command{
-	Use:   "Update",
-	Short: "Update JSON entry",
+var updateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update an existing task in the JSON file",
 	Args:  cobra.ExactArgs(3),
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 3 {
-			fmt.Println("Error: Expected at least 3 arguments")
-			return
-		}
-
-		arg1 := args[0]
-		arg2Str := args[1]
-		arg3 := args[2]
-
-		arg2, err := strconv.Atoi(arg2Str)
+		arg2, err := strconv.Atoi(args[1])
 		if err != nil {
 			fmt.Println("Error: Second argument must be an integer")
 			return
 		}
-		fmt.Printf("Entry updated", tasks.UpdateJSON(arg1, arg2, arg3))
+
+		err = tasks.UpdateJSON(args[0], arg2, args[2])
+		if err != nil {
+			fmt.Printf("Error updating task: %v\n", err)
+			return
+		}
+		fmt.Println("Task updated successfully.")
 	},
 }
 
-var delete = &cobra.Command{
-	Use:   "Delete",
-	Short: "Delete JSON entry",
+var deleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete a task from the JSON file",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		arg1 := args[0]
-		arg2Str := args[1]
-
-		arg2, err := strconv.Atoi(arg2Str)
+		arg2, err := strconv.Atoi(args[1])
 		if err != nil {
 			fmt.Println("Error: Second argument must be an integer")
 			return
 		}
-		fmt.Printf("Entry Deleted", tasks.DeleteJSON(arg1, arg2))
+
+		err = tasks.DeleteJSON(args[0], arg2)
+		if err != nil {
+			fmt.Printf("Error deleting task: %v\n", err)
+			return
+		}
+		fmt.Println("Task deleted successfully.")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(add)
-	rootCmd.AddCommand(update)
-	rootCmd.AddCommand(delete)
+	rootCmd.AddCommand(addCmd)
+	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(deleteCmd)
 }
