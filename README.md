@@ -32,7 +32,11 @@ For this project I have used golang and cobra framework/library. Cobra is very c
     ```
     go build -o tasktracker
     ```
-4. Run the commands 
+4. Create a file `tasks.json`
+    ```
+    touch tasks.json
+    ```
+5. Run the commands 
     * Add
         ```
         ./tasktracker add add "<Task-Description>"
