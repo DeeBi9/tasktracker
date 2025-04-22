@@ -169,3 +169,94 @@ func DeleteJSON(arg1 string, arg2 int) error {
 	}
 	return fmt.Errorf("incorrect argument")
 }
+
+func Change_status(arg1 string, arg2 int) error {
+	jsonFile, err := openJSON()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var data Data
+	if len(byteValue) > 0 {
+		json.Unmarshal(byteValue, &data)
+	} else {
+		return fmt.Errorf("no data found")
+	}
+	updatedTime := time.Now()
+	found := false
+	for i := range data.Data {
+		if data.Data[i].Id == arg2 {
+			data.Data[i].Status = arg1
+			data.Data[i].UpdatedAt = updatedTime
+			found = true
+			break
+		}
+	}
+	if !found {
+		return fmt.Errorf("task with id %d not found", arg2)
+	}
+
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		fmt.Println("Error encoding JSON:", err)
+		return err
+	}
+	err = os.WriteFile("tasks.json", jsonData, 0644)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return err
+	}
+	return nil
+}
+
+func ListAll() (Data, error) {
+	jsonFile, err := openJSON()
+	if err != nil {
+		fmt.Println(err)
+		return Data{}, err
+	}
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var data Data
+	if len(byteValue) > 0 {
+		json.Unmarshal(byteValue, &data)
+		return data, nil
+	} else {
+		return Data{}, fmt.Errorf("no data found")
+	}
+}
+
+func Liststatuswise(arg1 string) (Data, error) {
+	jsonFile, err := openJSON()
+	if err != nil {
+		fmt.Println(err)
+		return Data{}, err
+	}
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var data Data
+	if len(byteValue) > 0 {
+		json.Unmarshal(byteValue, &data)
+	} else {
+		return Data{}, fmt.Errorf("no data found")
+	}
+
+	var datatoreturn Data
+
+	for i := range data.Data {
+		if data.Data[i].Status == arg1 {
+			datatoreturn.Data = append(datatoreturn.Data, data.Data[i])
+		}
+	}
+
+	return datatoreturn, nil
+
+}
